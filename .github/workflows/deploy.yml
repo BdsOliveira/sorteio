@@ -3,7 +3,7 @@ name: Deploy
 on:
   push:
     branches:
-      - main
+      - disable
 
 jobs:
   deploy:
@@ -35,5 +35,4 @@ jobs:
           port: ${{ secrets.PORT }}
           script: |
             cd sistemas/sorteio/app/
-            composer install
-            composer update
+            composer install --no-dev --no-interaction --optimize-autoloader

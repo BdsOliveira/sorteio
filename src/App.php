@@ -4,88 +4,58 @@ namespace PhpPiaui\Sorteio;
 
 use Box\Spout\Reader\Common\Creator\ReaderEntityFactory;
 
-const INICIO_LISTA = 6;
-const FINAL_LISTA = 183;
-
-$reader = ReaderEntityFactory::createReaderFromFile('lista.xlsx');
-$reader->open('lista.xlsx');
-
-$lista = [];
-$headers = [];
-foreach ($reader->getSheetIterator() as $sheet) {
-    foreach ($sheet->getRowIterator() as $linha => $row) {
-        $cells = $row->getCells();
-        foreach ($cells as $key => $cell) {
-            if (str_contains($cell, 'xportado')) {
-                break;
-            }
-            if ($linha == INICIO_LISTA) {
-                $headers[] = $cell->getValue();
-            }
-            if ($linha > INICIO_LISTA) {
-                $itensDaLinha[$key] = $cell->getValue();
-            }
-        }
-        if ($linha > INICIO_LISTA && $linha < FINAL_LISTA) {
-            $novoItem = new Item($headers, $itensDaLinha);
-            array_push($lista, $novoItem->getItem());
-        }
-    }
-}
-$reader->close();
-
-$deve_fazer_sorteio = false;
-
-if ($_GET['sorteio']) {
-    $deve_fazer_sorteio = true;
-
-    $id_sorteado = rand(INICIO_LISTA, FINAL_LISTA);
-}
+const ARQUIVO_LISTA = __DIR__ . '/../Lista de participantes - Serto_Tech (3549344).xlsx';
+const CABECALHO_LISTA = 'Ordem de inscrição';
+const SOMENTE_CHECKIN = false;
 
 function createSlug($str, $delimiter = '_')
 {
     return strtolower(trim(preg_replace('/[\s-]+/', $delimiter, preg_replace('/[^A-Za-z0-9-]+/', $delimiter, preg_replace('/[&]/', 'and', preg_replace('/[\']/', '', iconv('UTF-8', 'ASCII//TRANSLIT', $str))))), $delimiter));
 }
 
-class Item
-{
-    private array $item;
-    public function __construct($headers, $itensDaLinha)
-    {
-        $this->setItem($headers, $itensDaLinha);
-    }
+$reader = ReaderEntityFactory::createReaderFromFile(ARQUIVO_LISTA);
+$reader->open(ARQUIVO_LISTA);
 
-    public function setItem($headers, $itensDaLinha)
-    {
-        $this->item = [
-            createSlug($headers[0]) => $itensDaLinha[0],
-            createSlug($headers[1]) => $itensDaLinha[1],
-            createSlug($headers[2]) => $itensDaLinha[2],
-            createSlug($headers[3]) => $itensDaLinha[3],
-            createSlug($headers[4]) => $itensDaLinha[4],
-            createSlug($headers[5]) => $itensDaLinha[5],
-            createSlug($headers[6]) => $itensDaLinha[6],
-            createSlug($headers[7]) => $itensDaLinha[7],
-            createSlug($headers[8]) => $itensDaLinha[8],
-            createSlug($headers[9]) => $itensDaLinha[9],
-            createSlug($headers[10]) => $itensDaLinha[10],
-            createSlug($headers[11]) => $itensDaLinha[11],
-            createSlug($headers[12]) => $itensDaLinha[12],
-            createSlug($headers[13]) => $itensDaLinha[13],
-            createSlug($headers[14]) => $itensDaLinha[14],
-            createSlug($headers[15]) => $itensDaLinha[15],
-            createSlug($headers[16]) => $itensDaLinha[16],
-            createSlug($headers[17]) => $itensDaLinha[17],
-            createSlug($headers[18]) => $itensDaLinha[18],
-            createSlug($headers[19]) => $itensDaLinha[19],
-            createSlug($headers[20]) => $itensDaLinha[20],
-        ];
-    }
+$lista = [];
+$headers = [];
+foreach ($reader->getSheetIterator() as $sheet) {
+    foreach ($sheet->getRowIterator() as $row) {
+        $valores = array_map(fn ($cell) => is_string($cell->getValue()) ? trim($cell->getValue()) : $cell->getValue(), $row->getCells());
 
-    public function getItem()
-    {
-        return $this->item;
+        if (!$headers) {
+            if (($valores[0] ?? null) === CABECALHO_LISTA) {
+                $headers = array_map('PhpPiaui\Sorteio\createSlug', $valores);
+            }
+            continue;
+        }
+
+        // A lista de participantes termina na primeira linha sem "Ordem de inscrição" numérica
+        // (seção de produtos/camisetas ou rodapé "Exportado em ...")
+        if (!is_numeric($valores[0] ?? null)) {
+            break 2;
+        }
+
+        $valores = array_pad(array_slice($valores, 0, count($headers)), count($headers), '');
+        $participante = array_combine($headers, $valores);
+
+        if ($participante['estado_de_pagamento'] !== 'Aprovado') {
+            continue;
+        }
+        if (SOMENTE_CHECKIN && $participante['check_in'] !== 'Sim') {
+            continue;
+        }
+
+        $lista[] = $participante;
     }
+}
+$reader->close();
+
+$deve_fazer_sorteio = false;
+
+if (!empty($_GET['sorteio']) && $lista) {
+    $deve_fazer_sorteio = true;
+
+    $id_sorteado = array_rand($lista);
 }
 ?>
 
@@ -142,7 +112,7 @@ class Item
         <div class="flex flex-col text-center">
             <div class="flex justify-center flex-col">
                 <div class="m-2">
-                    <a href="/?sorteio=true" class="btn btn-primary">
+                    <a href="?sorteio=true" class="btn btn-primary">
                         <?php echo $deve_fazer_sorteio ? "Sortear Novamente" : "Iniciar Sorteio" ?>
                     </a>
                 </div>
@@ -150,7 +120,7 @@ class Item
                     <?php 
                         echo !$deve_fazer_sorteio 
                         ? "" 
-                        : "<a href='/' class='btn btn-outline btn-sm'>Voltar</a>"
+                        : "<a href='./' class='btn btn-outline btn-sm'>Voltar</a>"
                     ?>
                 </div>
             </div>
@@ -160,15 +130,15 @@ class Item
     <div class="<?php echo $deve_fazer_sorteio ? "" : "hidden" ?> swiper mySwiper">
         <div class="swiper-wrapper">
             <div class="swiper-slide">
-                <?php
-                    echo 'Ingresso nº: ' . $lista[$id_sorteado]['ingresso'] . ' <br> ';
+                <?php if ($deve_fazer_sorteio) {
+                    echo 'Ingresso nº: ' . $lista[$id_sorteado]['no_ingresso'] . ' <br> ';
                     echo 'Data da compra: ' . $lista[$id_sorteado]['data_compra'] . ' <br> ';
-                ?>
+                } ?>
             </div>
             <div class="swiper-slide">
-                <?php
+                <?php if ($deve_fazer_sorteio) {
                     echo $lista[$id_sorteado]['nome'] . ' ' . $lista[$id_sorteado]['sobrenome'];
-                ?>
+                } ?>
             </div>
         </div>
         <div class="swiper-pagination"></div>
