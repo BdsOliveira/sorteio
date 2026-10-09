@@ -160,10 +160,6 @@ if (!empty($_GET['sorteio']) && $lista) {
         });
 
         function comemorar() {
-            if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-                return;
-            }
-
             // Cores do design system do Sertão Tech: terra, amber, honey, cactus, brick
             var cores = ["#A8511A", "#D87D0E", "#F6C56C", "#5E7A32", "#B23A20"];
             var posicoes = [
@@ -177,6 +173,11 @@ if (!empty($_GET['sorteio']) && $lista) {
                 }, i * 250);
             });
         }
+
+        // Confete assim que um novo sorteio é feito (botão "Iniciar Sorteio" / "Sortear Novamente")
+        <?php if ($deve_fazer_sorteio) { ?>
+        window.addEventListener("load", comemorar);
+        <?php } ?>
     </script>
 </body>
 
