@@ -139,6 +139,7 @@ if (!empty($_GET['sorteio']) && $lista) {
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@hiseb/confetti@2.2.0/dist/confetti.min.js"></script>
 
     <!-- Initialize Swiper -->
     <script>
@@ -148,7 +149,34 @@ if (!empty($_GET['sorteio']) && $lista) {
                 el: ".swiper-pagination",
                 clickable: true,
             },
+            on: {
+                // Confete ao revelar o nome sorteado (segundo slide)
+                slideChange: function () {
+                    if (this.activeIndex === 1) {
+                        comemorar();
+                    }
+                },
+            },
         });
+
+        function comemorar() {
+            if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+                return;
+            }
+
+            // Cores do design system do Sertão Tech: terra, amber, honey, cactus, brick
+            var cores = ["#A8511A", "#D87D0E", "#F6C56C", "#5E7A32", "#B23A20"];
+            var posicoes = [
+                { x: window.innerWidth * 0.50, y: window.innerHeight * 0.60 },
+                { x: window.innerWidth * 0.25, y: window.innerHeight * 0.45 },
+                { x: window.innerWidth * 0.75, y: window.innerHeight * 0.45 },
+            ];
+            posicoes.forEach(function (posicao, i) {
+                setTimeout(function () {
+                    confetti({ position: posicao, count: 150, color: cores });
+                }, i * 250);
+            });
+        }
     </script>
 </body>
 
