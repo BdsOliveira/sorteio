@@ -8,7 +8,10 @@
         }
     },
     "minimum-stability": "beta",
-    "require": {
+    "require-dev": {
         "box/spout": "^3.3"
+    },
+    "scripts": {
+        "lista": "php -d \"error_reporting=E_ALL & ~E_DEPRECATED\" bin/gerar-lista.php"
     }
 }

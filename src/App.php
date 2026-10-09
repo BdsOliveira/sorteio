@@ -2,53 +2,14 @@
 
 namespace PhpPiaui\Sorteio;
 
-use Box\Spout\Reader\Common\Creator\ReaderEntityFactory;
-
-const ARQUIVO_LISTA = __DIR__ . '/../Lista de participantes - Serto_Tech (3549344).xlsx';
-const CABECALHO_LISTA = 'Ordem de inscrição';
 const SOMENTE_CHECKIN = false;
 
-function createSlug($str, $delimiter = '_')
-{
-    return strtolower(trim(preg_replace('/[\s-]+/', $delimiter, preg_replace('/[^A-Za-z0-9-]+/', $delimiter, preg_replace('/[&]/', 'and', preg_replace('/[\']/', '', iconv('UTF-8', 'ASCII//TRANSLIT', $str))))), $delimiter));
+// Lista gerada a partir da planilha por bin/gerar-lista.php (composer lista)
+$lista = require __DIR__ . '/../data/participantes.php';
+
+if (SOMENTE_CHECKIN) {
+    $lista = array_values(array_filter($lista, fn ($participante) => $participante['check_in'] === 'Sim'));
 }
-
-$reader = ReaderEntityFactory::createReaderFromFile(ARQUIVO_LISTA);
-$reader->open(ARQUIVO_LISTA);
-
-$lista = [];
-$headers = [];
-foreach ($reader->getSheetIterator() as $sheet) {
-    foreach ($sheet->getRowIterator() as $row) {
-        $valores = array_map(fn ($cell) => is_string($cell->getValue()) ? trim($cell->getValue()) : $cell->getValue(), $row->getCells());
-
-        if (!$headers) {
-            if (($valores[0] ?? null) === CABECALHO_LISTA) {
-                $headers = array_map('PhpPiaui\Sorteio\createSlug', $valores);
-            }
-            continue;
-        }
-
-        // A lista de participantes termina na primeira linha sem "Ordem de inscrição" numérica
-        // (seção de produtos/camisetas ou rodapé "Exportado em ...")
-        if (!is_numeric($valores[0] ?? null)) {
-            break 2;
-        }
-
-        $valores = array_pad(array_slice($valores, 0, count($headers)), count($headers), '');
-        $participante = array_combine($headers, $valores);
-
-        if ($participante['estado_de_pagamento'] !== 'Aprovado') {
-            continue;
-        }
-        if (SOMENTE_CHECKIN && $participante['check_in'] !== 'Sim') {
-            continue;
-        }
-
-        $lista[] = $participante;
-    }
-}
-$reader->close();
 
 $deve_fazer_sorteio = false;
 

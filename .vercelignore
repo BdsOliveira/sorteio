@@ -1,3 +1,4 @@
 /vendor
 /.github
-/lista_2023.xlsx
+/*.xlsx
+/bin
