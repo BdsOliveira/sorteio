@@ -21,12 +21,13 @@ if (!empty($_GET['sorteio']) && $lista) {
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sorteio PHPi</title>
+    <title>Sorteio Sertão Tech</title>
+    <link rel="icon" type="image/png" href="assets/favicon-48.png">
     <link href="https://cdn.jsdelivr.net/npm/daisyui@3.9.4/dist/full.css" rel="stylesheet" type="text/css" />
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
@@ -67,7 +68,8 @@ if (!empty($_GET['sorteio']) && $lista) {
 <body class="bg-base-100 h-screen">
     <div class="flex justify-center flex-col">
         <div class="flex flex-col text-center m-4">
-            <h1 class="text-4xl">Sorteio PHPi</h1>
+            <img src="assets/logo-360.webp" alt="Sertão Tech" width="160" height="160" class="mx-auto mb-2">
+            <h1 class="text-4xl">Sorteio Sertão Tech</h1>
             <h2 class="text-2xl"><?php echo count($lista) ?> participantes</h2>
         </div>
         <div class="flex flex-col text-center">
