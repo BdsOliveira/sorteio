@@ -21,7 +21,7 @@ if (!empty($_GET['sorteio']) && $lista) {
 ?>
 
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-theme="sertao">
 
 <head>
     <meta charset="UTF-8">
@@ -31,14 +31,45 @@ if (!empty($_GET['sorteio']) && $lista) {
     <link href="https://cdn.jsdelivr.net/npm/daisyui@3.9.4/dist/full.css" rel="stylesheet" type="text/css" />
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
-    <!-- Demo styles -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@700;800&family=Instrument+Sans:wght@400;600&display=swap" rel="stylesheet">
     <style>
+        /* Tema DaisyUI com a paleta do design system do Sertão Tech (sertaotech/ds/tokens/colors.css) */
+        [data-theme="sertao"] {
+            color-scheme: light;
+            --p: 23 73% 38%;   /* terra-600 #A8511A */
+            --pf: 22 74% 31%;  /* terra-700 #8A4015 */
+            --pc: 38 100% 96%; /* text-on-brand #FFF8EC */
+            --s: 33 88% 45%;   /* amber-500 #D87D0E */
+            --sf: 33 88% 37%;  /* amber-600 #B4670B */
+            --sc: 30 68% 10%;  /* espresso-900 #2A1908 */
+            --a: 83 42% 34%;   /* cactus-500 #5E7A32 */
+            --af: 84 41% 27%;  /* cactus-600 #4C6329 */
+            --ac: 42 68% 95%;  /* sand-50 #FBF6EA */
+            --n: 27 69% 14%;   /* espresso-800 #3C210B */
+            --nf: 30 68% 10%;  /* espresso-900 #2A1908 */
+            --nc: 42 65% 89%;  /* sand-100 #F5EAD0 */
+            --b1: 42 65% 89%;  /* sand-100 #F5EAD0 */
+            --b2: 42 64% 82%;  /* sand-200 #EEDCB2 */
+            --b3: 42 60% 72%;  /* sand-300 #E2C88C */
+            --bc: 27 69% 14%;  /* espresso-800 #3C210B */
+            --swiper-theme-color: #A8511A;
+        }
+
         body {
             position: relative;
         }
 
+        h1 {
+            font-family: "League Spartan", system-ui, sans-serif;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+        }
+
         body {
-            font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+            font-family: "Instrument Sans", system-ui, -apple-system, "Segoe UI", Helvetica, sans-serif;
             font-size: 14px;
             margin: 0;
             padding: 0;
@@ -69,8 +100,8 @@ if (!empty($_GET['sorteio']) && $lista) {
     <div class="flex justify-center flex-col">
         <div class="flex flex-col text-center m-4">
             <img src="assets/logo-360.webp" alt="Sertão Tech" width="160" height="160" class="mx-auto mb-2">
-            <h1 class="text-4xl">Sorteio Sertão Tech</h1>
-            <h2 class="text-2xl"><?php echo count($lista) ?> participantes</h2>
+            <h1 class="text-4xl text-primary">Sorteio Sertão Tech</h1>
+            <h2 class="text-2xl text-neutral"><?php echo count($lista) ?> participantes</h2>
         </div>
         <div class="flex flex-col text-center">
             <div class="flex justify-center flex-col">
